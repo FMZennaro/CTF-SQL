@@ -29,6 +29,8 @@ class Agent():
 		self.Q = np.ones((2**self.num_esc_expl_actions, self.num_actions))
 
 		self.verbose = verbose
+		self.set_learning_options()
+		self.used_actions = []
 
 	def set_learning_options(self,exploration=0.2,learningrate=0.1,discount=0.9):
 		self.expl = exploration
@@ -46,6 +48,7 @@ class Agent():
 		self.steps = self.steps + 1
 
 		action = self._select_action()
+		self.used_actions.append(action)
 
 		state_resp, reward, termination, debug_msg = self.env.step(action)
 
@@ -56,6 +59,26 @@ class Agent():
 		return
 
 
+	def _calculate_next_state(self,action_index):
+		print("asdlfjaslfkdjsdlfjflsdjsfdlk")
+		indexes = []
+		temp_state = self.state
+		while(temp_state > 0):
+			indexes.append(temp_state % self.num_esc_expl_actions)
+			temp_state = temp_state//self.num_esc_expl_actions
+		if(action_index in indexes):
+			return self.state
+		else:
+			indexes.append(action_index)
+			indexes.sort()
+			action_offset = len(indexes)-1
+			new_state = 0
+			for x in indexes:
+				new_state += (self.num_esc_expl_actions**action_offset)*(x+1)
+
+		#print(self.state,"new_state",new_state)
+
+		return new_state
 
 
 	def _analyze_response(self, action, response, reward):
@@ -66,9 +89,17 @@ class Agent():
 		wrong1 = 0 	#NOTHING
 		wrong2 = -1 #NOTHING
 
+		escape_action = False
+
+		action_str = const.actions[action]
+		if(action_str in self.esc_expl_actions):
+			escape_action = True
+			#We add 1 since we start in state 0 and it makes more sense to go up from there
+			action_index_plus1 = self.esc_expl_actions.index(action_str) +1
+
 		#The agent recieves SOMETHING as the response
 		if(response==expl1 or response == expl2):
-			self.state = 2*(action // 17) + (action % 17)
+			self.state = self._calculate_next_state(action_index_plus1)
 			self._update_Q(self.state, self.state, action, reward)
 		#SOMETHING
 		elif(response == expl3):
@@ -104,3 +135,7 @@ class Agent():
 
 if __name__ == "__main__":
 	a = Agent(const.actions)
+	env = srv.mockSQLenv()
+	a.reset(env)
+	a.run_episode()
+	#a.step()
