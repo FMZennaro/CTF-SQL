@@ -25,7 +25,7 @@ class Agent():
 		"""
 		We let the first index be the state and the second index be the action
 		"""
-		print(2**self.num_expl_actions, self.num_expl_actions)
+		#print(2**self.num_expl_actions, self.num_expl_actions)
 		self.Q = np.ones((2**self.num_esc_expl_actions, self.num_actions))
 
 		self.verbose = verbose
@@ -37,7 +37,7 @@ class Agent():
 
 	def _select_action(self):
 		if (np.random.random() < self.expl):
-			np.random.randint(0,self.num_actions)
+			return np.random.randint(0,self.num_actions)
 		else:
 			return np.argmax(self.Q[self.state,:])
 
@@ -51,7 +51,7 @@ class Agent():
 
 		self._analyze_response(action, state_resp, reward)
 		self.terminated = termination
-		if(self.verbose): print(s)
+		if(self.verbose): print(debug_msg)
 
 		return
 
@@ -67,7 +67,7 @@ class Agent():
 		wrong2 = -1 #NOTHING
 
 		#The agent recieves SOMETHING as the response
-		if(response==exp1 or response == expl2):
+		if(response==expl1 or response == expl2):
 			self.state = 2*(action // 17) + (action % 17)
 			self._update_Q(self.state, self.state, action, reward)
 		#SOMETHING
@@ -77,7 +77,7 @@ class Agent():
 		elif(response==wrong1 or response == wrong2):
 			self._update_Q(self.state, self.state, action, reward)
 
-		elif(command==flag):
+		elif(response==flag):
 			self._update_Q(self.state,self.state,action,reward)
 		else:
 			print("ILLEGAL RESPONSE")

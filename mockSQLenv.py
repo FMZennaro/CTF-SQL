@@ -31,30 +31,31 @@ class mockSQLenv():
 
 		# If given a string find out the action number
 		if (action_number==None):
+			print("action_number)",action_number)
 			action_number = np.where(self.A==action_string)[0][0]
 		if(self.verbose): print('I received action {0}: {1}'.format(action_number, self.A[action_number]))
 
 		# Process action
 		if (action_number==self.setup[0]):
 			if(self.verbose): print('Correct exploratory action for the escape. I return 1')
-			return 1,-1,self.termination,'Answer is 1'
+			return 1,-1,self.termination,'Server response is 1'
 		elif (action_number==self.setup[1]):
 			if(self.verbose): print('Correct exploratory action for the escape. I return 2')
-			return 2,-1,self.termination,'Answer is 2'
+			return 2,-1,self.termination,'Server response is 2'
 		elif (action_number==self.setup[2]):
 			if(self.verbose): print('Flag captured. I return 3')
 			self.termination = True
-			return 3,100,self.termination,'Answer is 3'
+			return 3,100,self.termination,'Server response is 3'
 		elif (action_number >= self.syntaxmin and action_number < self.syntaxmax):
 			if(action_number == self.flag_cols*2 + self.setup[1] + 1 or action_number == self.flag_cols*2 + self.setup[1] + 2):
-				if(verbose): print('Query with correct number of rows')
-				return 4,-1, self.termination, "Answer is 4"
+				if(self.verbose): print('Query with correct number of rows')
+				return 4,-1, self.termination, "Server response is 4"
 
 			if(self.verbose): print('Query has the correct escape, but contains the wrong number of rows. I return 0')
-			return 0,-1,self.termination,'Answer is 0'
+			return 0,-1,self.termination,'Server response is 0'
 		else:
 			if(self.verbose): print('Query is syntactically wrong. I return -1')
-			return -1,-1,self.termination,'Answer is -1'
+			return -1,-1,self.termination,'Server response is -1'
 
 
 	def reset(self):
