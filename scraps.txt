@@ -1,0 +1,22 @@
+def _calculate_next_state(self,action_index):
+	#XXX does not work
+	print("asdlfjaslfkdjsdlfjflsdjsfdlk")
+
+	indexes = []
+	temp_state = self.state
+	while(temp_state > 0):
+		indexes.append(temp_state % self.num_esc_expl_actions)
+		temp_state = temp_state//self.num_esc_expl_actions
+	if(action_index in indexes):
+		return self.state
+	else:
+		indexes.append(action_index)
+		indexes.sort()
+		action_offset = len(indexes)-1
+		new_state = 0
+		for x in indexes:
+			new_state += (self.num_esc_expl_actions**action_offset)*(x+1)
+
+	#print(self.state,"new_state",new_state)
+
+	return new_state

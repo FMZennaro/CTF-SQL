@@ -2,6 +2,7 @@ import numpy as np
 import mockSQLenv as srv
 import const
 import sys
+import utilities as ut
 
 """
 agent.py is based on FMZennaro's agent on https://github.com/FMZennaro/CTF-RL/blob/master/Simulation1/agent.py
@@ -31,6 +32,8 @@ class Agent():
 		self.verbose = verbose
 		self.set_learning_options()
 		self.used_actions = []
+		self.used_esc_expl_actions_with_response = set([])
+		self.powerset = None
 
 	def set_learning_options(self,exploration=0.2,learningrate=0.1,discount=0.9):
 		self.expl = exploration
@@ -59,24 +62,14 @@ class Agent():
 		return
 
 
-	def _calculate_next_state(self,action_index):
-		print("asdlfjaslfkdjsdlfjflsdjsfdlk")
-		indexes = []
-		temp_state = self.state
-		while(temp_state > 0):
-			indexes.append(temp_state % self.num_esc_expl_actions)
-			temp_state = temp_state//self.num_esc_expl_actions
-		if(action_index in indexes):
-			return self.state
-		else:
-			indexes.append(action_index)
-			indexes.sort()
-			action_offset = len(indexes)-1
-			new_state = 0
-			for x in indexes:
-				new_state += (self.num_esc_expl_actions**action_offset)*(x+1)
+	def _calculate_next_state(self):
+		if(self.powerset is None):
+			self.powerset = ut.powerset(list(range(self.num_esc_expl_actions)))
 
-		#print(self.state,"new_state",new_state)
+		x = list(self.used_esc_expl_actions_with_response)
+		x.sort()
+		x = tuple(x)
+		new_state = self.powerset.index(x)
 
 		return new_state
 
@@ -95,11 +88,12 @@ class Agent():
 		if(action_str in self.esc_expl_actions):
 			escape_action = True
 			#We add 1 since we start in state 0 and it makes more sense to go up from there
-			action_index_plus1 = self.esc_expl_actions.index(action_str) +1
+			action_index = self.esc_expl_actions.index(action_str)
 
 		#The agent recieves SOMETHING as the response
 		if(response==expl1 or response == expl2):
-			self.state = self._calculate_next_state(action_index_plus1)
+			self.used_esc_expl_actions_with_response.add(action_index)
+			self.state = self._calculate_next_state()
 			self._update_Q(self.state, self.state, action, reward)
 		#SOMETHING
 		elif(response == expl3):
