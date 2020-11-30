@@ -9,5 +9,6 @@ def powerset(iterable):
 
 
 if __name__ == "__main__":
-	x = powerset([1,2,3,4,5,6])
+	x = powerset([0,1,2,3,4,5])
 	print(x)
+	print(len(x))

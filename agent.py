@@ -78,7 +78,7 @@ class Agent():
 		expl1 = 1 	# SOMETHING
 		expl2 = 2 	# SOMETHING, but maybe should be nothing
 		flag  = 3 	#FLAG
-		expl3 = 4 	#SOMETHING
+		expl3 = 4 	#NOTHING
 		wrong1 = 0 	#NOTHING
 		wrong2 = -1 #NOTHING
 
@@ -117,6 +117,8 @@ class Agent():
 		self.terminated = False
 		self.state = 0
 		self.steps = 0
+		self.used_esc_expl_actions_with_response = set([])
+		self.used_actions = []
 
 
 	def run_episode(self):
