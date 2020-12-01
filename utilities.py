@@ -7,6 +7,9 @@ def powerset(iterable):
 	return list(chain.from_iterable(combinations(s, r) for r in range(len(s)+1)))
 
 
+def getdictshape(d):
+	return (len(d.keys()), d[()].shape)
+
 
 if __name__ == "__main__":
 	x = powerset([0,1,2,3,4,5])
