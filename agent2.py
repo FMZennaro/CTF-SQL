@@ -40,8 +40,8 @@ class Agent():
 		self.lr = learningrate
 		self.discount = discount
 
-	def _select_action(self):
-		if (np.random.random() < self.expl):
+	def _select_action(self, learning = True):
+		if (np.random.random() < self.expl and learning):
 			return np.random.randint(0,self.num_actions)
 		else:
 			return np.argmax(self.Q[self.state])
@@ -62,15 +62,18 @@ class Agent():
 		return
 
 
-	def _calculate_next_state(self, action_nr, response_interpretation):
+	def _update_state(self, action_nr, response_interpretation):
 		"""
 		response interpretation is either -1 or 1
 		"""
-		x = list(self.state) + [response_interpretation*action_nr]
+		x = list(set(list(self.state) + [response_interpretation*action_nr]))
 		x.sort()
 		x = tuple(x)
-		self.Q[x] = np.ones(self.num_actions)
-		return x
+		self.Q[x] = self.Q.get(x, np.ones(self.num_actions))
+
+
+		self.oldstate = self.state
+		self.state = x
 
 
 
@@ -85,32 +88,33 @@ class Agent():
 
 		#The agent recieves SOMETHING as the response
 		if(response==expl1 or response == expl3):
-			self.state = self._calculate_next_state(action, response_interpretation = 1)
-			self._update_Q(self.state, self.state, action, reward)
+			self._update_state(action, response_interpretation = 1)
+			self._update_Q(action, reward)
 		#NOTHING2
 		elif(response == expl2):
-			self.state = self._calculate_next_state(action, response_interpretation = -1)
-			self._update_Q(self.state, self.state, action, reward)
+			self._update_state(action, response_interpretation = -1)
+			self._update_Q(action, reward)
 
 		elif(response==wrong1 or response == wrong2):
-			self.state = self._calculate_next_state(action, response_interpretation = -1)
-			self._update_Q(self.state, self.state, action, reward)
+			self._update_state(action, response_interpretation = -1)
+			self._update_Q(action, reward)
 
 		elif(response==flag):
-			self.state = self._calculate_next_state(action, response_interpretation = 1)
-			self._update_Q(self.state,self.state, action,reward)
+			self._update_state(action, response_interpretation = 1)
+			self._update_Q(action,reward)
 		else:
 			print("ILLEGAL RESPONSE")
 			sys.exit()
 
-	def _update_Q(self, oldstate, newstate, action, reward):
-		best_action_newstate = np.argmax(self.Q[newstate])
-		self.Q[oldstate][action] = self.Q[oldstate][action] + self.lr * (reward + self.discount*self.Q[newstate][best_action_newstate] - self.Q[oldstate][action])
+	def _update_Q(self, action, reward):
+		best_action_newstate = np.argmax(self.Q[self.state])
+		self.Q[self.oldstate][action] = self.Q[self.oldstate][action] + self.lr * (reward + self.discount*self.Q[self.state][best_action_newstate] - self.Q[self.oldstate][action])
 
 	def reset(self,env):
 		self.env = env
 		self.terminated = False
 		self.state = () #empty tuple
+		self.oldstate = None
 		self.steps = 0
 		self.used_esc_expl_actions_with_response = set([])
 		self.used_actions = []
@@ -122,6 +126,30 @@ class Agent():
 
 		while not(self.terminated):
 			self.step()
+	def run_human_look_episode(self):
+		_,_,self.terminated,s = self.env.reset()
+		print(s)
+		while not(self.terminated):
+			self.look_step()
+
+	def look_step(self):
+		self.steps = self.steps + 1
+		print("step", self.steps)
+
+		print("My state is")
+		print(self.state)
+
+		print("My Q row looks like this:")
+		print(self.Q[self.state])
+		action = self._select_action(learning = True)
+		#print("I will pick")
+		#print(const.actions[action])
+
+		state_resp, reward, termination, debug_msg = self.env.step(action)
+
+		self._analyze_response(action, state_resp, reward)
+		self.terminated = termination
+		print(debug_msg)
 
 
 if __name__ == "__main__":
