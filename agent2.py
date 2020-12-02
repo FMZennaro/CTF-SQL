@@ -34,11 +34,14 @@ class Agent():
 		self.used_actions = []
 		self.used_esc_expl_actions_with_response = set([])
 		self.powerset = None
+		self.total_trials = 0
+		self.total_successes = 0
 
-	def set_learning_options(self,exploration=0.2,learningrate=0.1,discount=0.9):
+	def set_learning_options(self,exploration=0.2,learningrate=0.1,discount=0.9, max_step = 100):
 		self.expl = exploration
 		self.lr = learningrate
 		self.discount = discount
+		self.max_step = max_step
 
 	def _select_action(self, learning = True):
 		if (np.random.random() < self.expl and learning):
@@ -124,13 +127,24 @@ class Agent():
 		_,_,self.terminated,s = self.env.reset()
 		if(self.verbose): print(s)
 
-		while not(self.terminated):
+		#Limiting the maximimun number of steps we allow the attacker to make to avoid overly long runtimes and extreme action spaces
+		while (not(self.terminated))  and self.steps < self.max_step:
 			self.step()
+
+		self.total_trials += 1
+		if(self.terminated):
+			self.total_successes += 1
+		return self.terminated
 	def run_human_look_episode(self):
 		_,_,self.terminated,s = self.env.reset()
 		print(s)
-		while not(self.terminated):
+		while (not(self.terminated))  and self.steps < self.max_step:
 			self.look_step()
+
+		self.total_trials += 1
+		if(self.terminated):
+			self.total_successes += 1
+		return self.terminated
 
 	def look_step(self):
 		self.steps = self.steps + 1
@@ -141,9 +155,15 @@ class Agent():
 
 		print("My Q row looks like this:")
 		print(self.Q[self.state])
+		print("Action ranking is")
+
+		print(np.argsort(self.Q[self.state])[::-1])
 		action = self._select_action(learning = True)
+		print("action equal highest rank",action == np.argsort(self.Q[self.state])[::-1][0])
 		#print("I will pick")
 		#print(const.actions[action])
+
+
 
 		state_resp, reward, termination, debug_msg = self.env.step(action)
 
