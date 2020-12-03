@@ -34,6 +34,9 @@ class Agent():
 		self.used_actions = []
 		self.used_esc_expl_actions_with_response = set([])
 		self.powerset = None
+		
+		self.steps = 0
+		self.rewards = 0
 		self.total_trials = 0
 		self.total_successes = 0
 
@@ -58,6 +61,7 @@ class Agent():
 
 		state_resp, reward, termination, debug_msg = self.env.step(action)
 
+		self.rewards = self.rewards + reward
 		self._analyze_response(action, state_resp, reward)
 		self.terminated = termination
 		if(self.verbose): print(debug_msg)
@@ -73,7 +77,6 @@ class Agent():
 		x.sort()
 		x = tuple(x)
 		self.Q[x] = self.Q.get(x, np.ones(self.num_actions))
-
 
 		self.oldstate = self.state
 		self.state = x
@@ -118,27 +121,30 @@ class Agent():
 		self.terminated = False
 		self.state = () #empty tuple
 		self.oldstate = None
-		self.steps = 0
 		self.used_esc_expl_actions_with_response = set([])
 		self.used_actions = []
-
+        
+		self.steps = 0
+		self.rewards = 0
+        
 
 	def run_episode(self):
 		_,_,self.terminated,s = self.env.reset()
 		if(self.verbose): print(s)
 
 		#Limiting the maximimun number of steps we allow the attacker to make to avoid overly long runtimes and extreme action spaces
-		while (not(self.terminated))  and self.steps < self.max_step:
+		while (not(self.terminated)) and self.steps < self.max_step:
 			self.step()
 
 		self.total_trials += 1
 		if(self.terminated):
 			self.total_successes += 1
 		return self.terminated
+    
 	def run_human_look_episode(self):
 		_,_,self.terminated,s = self.env.reset()
 		print(s)
-		while (not(self.terminated))  and self.steps < self.max_step:
+		while (not(self.terminated)) and self.steps < self.max_step:
 			self.look_step()
 
 		self.total_trials += 1
