@@ -34,7 +34,7 @@ class Agent():
 		self.used_actions = []
 		self.used_esc_expl_actions_with_response = set([])
 		self.powerset = None
-		
+
 		self.steps = 0
 		self.rewards = 0
 		self.total_trials = 0
@@ -73,6 +73,7 @@ class Agent():
 		"""
 		response interpretation is either -1 or 1
 		"""
+		action_nr += 1
 		x = list(set(list(self.state) + [response_interpretation*action_nr]))
 		x.sort()
 		x = tuple(x)
@@ -123,10 +124,10 @@ class Agent():
 		self.oldstate = None
 		self.used_esc_expl_actions_with_response = set([])
 		self.used_actions = []
-        
+
 		self.steps = 0
 		self.rewards = 0
-        
+
 
 	def run_episode(self):
 		_,_,self.terminated,s = self.env.reset()
@@ -140,7 +141,7 @@ class Agent():
 		if(self.terminated):
 			self.total_successes += 1
 		return self.terminated
-    
+
 	def run_human_look_episode(self):
 		_,_,self.terminated,s = self.env.reset()
 		print(s)
