@@ -11,26 +11,13 @@ agent.py is based on FMZennaro's agent on https://github.com/FMZennaro/CTF-RL/bl
 class Agent():
 	def __init__(self, actions, verbose=True):
 		self.actions = actions
-		#All the exploratory actions
-		self.expl_actions = list(filter(lambda x: "flag" not in x, self.actions))
-		#All the escape exploratory actions
-		self.esc_expl_actions = list(filter(lambda x: "union" not in x, self.actions))
-
-
 		self.num_actions = len(actions)
-		self.num_expl_actions = len(self.expl_actions)
-		self.num_esc_expl_actions = len(self.esc_expl_actions)
 
-		"""
-		We let the first index be the state and the second index be the action
-		"""
-		#print(2**self.num_expl_actions, self.num_expl_actions)
 		self.Q = {(): np.ones(self.num_actions)}
 
 		self.verbose = verbose
 		self.set_learning_options()
 		self.used_actions = []
-		self.used_esc_expl_actions_with_response = set([])
 		self.powerset = None
 
 		self.steps = 0
@@ -87,7 +74,7 @@ class Agent():
 		expl1 = 1 	# SOMETHING
 		expl2 = 2 	# NOTHING
 		flag  = 3 	#FLAG
-		expl3 = 4 	#NOTHING
+		expl3 = 4 	#SOMETHING
 		wrong1 = 0 	#NOTHING
 		wrong2 = -1 #NOTHING
 
@@ -120,7 +107,6 @@ class Agent():
 		self.terminated = False
 		self.state = () #empty tuple
 		self.oldstate = None
-		self.used_esc_expl_actions_with_response = set([])
 		self.used_actions = []
 
 		self.steps = 0
@@ -165,8 +151,6 @@ class Agent():
 		print(np.argsort(self.Q[self.state])[::-1])
 		action = self._select_action(learning = True)
 		print("action equal highest rank",action == np.argsort(self.Q[self.state])[::-1][0])
-		#print("I will pick")
-		#print(const.actions[action])
 
 
 
