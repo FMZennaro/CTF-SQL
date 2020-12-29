@@ -54,10 +54,10 @@ class mockSQLenv(object):
 				return 4,self.query_reward, self.termination, "Server response is 4"
 
 			if(self.verbose): print('Query has the correct escape, but contains the wrong number of rows. I return 0')
-			return 0,self.query_reward,self.termination,'Server response is 0'
+			return 0,self.query_reward, self.termination,'Server response is 0'
 		else:
 			if(self.verbose): print('Query is syntactically wrong. I return -1')
-			return -1,self.query_reward,self.termination,'Server response is -1'
+			return -1,self.query_reward, self.termination,'Server response is -1'
 
 
 	def reset(self):
