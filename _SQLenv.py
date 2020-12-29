@@ -9,7 +9,6 @@ param_n_rows = [2,10]
 
 
 class SQLenv():
-
     def __init__(self):
         self.n_tables = np.random.randint(param_n_tables[0], param_n_tables[1])
 

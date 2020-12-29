@@ -2,12 +2,14 @@ import numpy as np
 
 import const
 
-class mockSQLenv():
-
-	def __init__(self,verbose=True):
-
+class mockSQLenv(object):
+	"""
+	"""
+	def __init__(self,verbose=True, flag_reward = 10, query_reward = -1):
 		# Get the action space
 		self.A = np.array(const.actions)
+		self.query_reward = query_reward
+		self.flag_reward = flag_reward
 
 		# Random integers to setup the server
 		r = np.random.randint(3)
@@ -38,24 +40,24 @@ class mockSQLenv():
 		# Process action
 		if (action_number==self.setup[0]):
 			if(self.verbose): print('Correct exploratory action for the escape. I return 1')
-			return 1,-1,self.termination,'Server response is 1'
+			return 1,self.query_reward,self.termination,'Server response is 1'
 		elif (action_number==self.setup[1]):
 			if(self.verbose): print('Correct exploratory action for the escape. I return 2')
-			return 2,-1,self.termination,'Server response is 2'
+			return 2,self.query_reward,self.termination,'Server response is 2'
 		elif (action_number==self.setup[2]):
 			if(self.verbose): print('Flag captured. I return 3')
 			self.termination = True
-			return 3,100,self.termination,'Server response is 3'
+			return 3,self.flag_reward,self.termination,'Server response is 3'
 		elif (action_number >= self.syntaxmin and action_number < self.syntaxmax):
 			if(action_number == self.flag_cols*2 + self.setup[1] + 1 or action_number == self.flag_cols*2 + self.setup[1] + 2):
 				if(self.verbose): print('Query with correct number of rows')
-				return 4,-1, self.termination, "Server response is 4"
+				return 4,self.query_reward, self.termination, "Server response is 4"
 
 			if(self.verbose): print('Query has the correct escape, but contains the wrong number of rows. I return 0')
-			return 0,-1,self.termination,'Server response is 0'
+			return 0,self.query_reward,self.termination,'Server response is 0'
 		else:
 			if(self.verbose): print('Query is syntactically wrong. I return -1')
-			return -1,-1,self.termination,'Server response is -1'
+			return -1,self.query_reward,self.termination,'Server response is -1'
 
 
 	def reset(self):
