@@ -9,8 +9,8 @@ def evaluate_model(model, env, num_steps=1000):
     for i in range(num_steps):
         action, _ = model.predict(obs)
         obs, reward, done, _ = env.step(action)
-        episode_rewards[-1] += reward[0]
-        if done[0]:
+        episode_rewards[-1] += reward
+        if done:
             obs = env.reset()
             episode_rewards.append(0.0)
 
