@@ -38,16 +38,17 @@ class Agent():
 			return np.argmax(self.Q[self.state])
 
 
-	def step(self):
+	def step(self, deterministic = False):
 		self.steps = self.steps + 1
 
-		action = self._select_action()
+		action = self._select_action(learning = not deterministic)
 		self.used_actions.append(action)
 
 		state_resp, reward, termination, debug_msg = self.env.step(action)
 
 		self.rewards = self.rewards + reward
-		self._analyze_response(action, state_resp, reward)
+		if(not deterministic):
+			self._analyze_response(action, state_resp, reward)
 		self.terminated = termination
 		if(self.verbose): print(debug_msg)
 
@@ -113,13 +114,13 @@ class Agent():
 		self.rewards = 0
 
 
-	def run_episode(self):
+	def run_episode(self, deterministic = False):
 		_,_,self.terminated,s = self.env.reset()
 		if(self.verbose): print(s)
 
 		#Limiting the maximimun number of steps we allow the attacker to make to avoid overly long runtimes and extreme action spaces
 		while (not(self.terminated)) and self.steps < self.max_step:
-			self.step()
+			self.step(deterministic = deterministic)
 
 		self.total_trials += 1
 		if(self.terminated):
