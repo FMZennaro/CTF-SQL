@@ -47,8 +47,8 @@ class Agent():
 		state_resp, reward, termination, debug_msg = self.env.step(action)
 
 		self.rewards = self.rewards + reward
-		if(not deterministic):
-			self._analyze_response(action, state_resp, reward)
+
+		self._analyze_response(action, state_resp, reward, learning = not deterministic)
 		self.terminated = termination
 		if(self.verbose): print(debug_msg)
 
@@ -71,7 +71,7 @@ class Agent():
 
 
 
-	def _analyze_response(self, action, response, reward):
+	def _analyze_response(self, action, response, reward, learning = True):
 		expl1 = 1 	# SOMETHING
 		expl2 = 2 	# NOTHING
 		flag  = 3 	#FLAG
@@ -82,19 +82,19 @@ class Agent():
 		#The agent recieves SOMETHING as the response
 		if(response==expl1 or response == expl3):
 			self._update_state(action, response_interpretation = 1)
-			self._update_Q(action, reward)
+			if(learning): self._update_Q(action, reward)
 		#NOTHING2
 		elif(response == expl2):
 			self._update_state(action, response_interpretation = -1)
-			self._update_Q(action, reward)
+			if(learning): self._update_Q(action, reward)
 
 		elif(response==wrong1 or response == wrong2):
 			self._update_state(action, response_interpretation = -1)
-			self._update_Q(action, reward)
+			if(learning): self._update_Q(action, reward)
 
 		elif(response==flag):
 			self._update_state(action, response_interpretation = 1)
-			self._update_Q(action,reward)
+			if(learning): self._update_Q(action,reward)
 		else:
 			print("ILLEGAL RESPONSE")
 			sys.exit()
